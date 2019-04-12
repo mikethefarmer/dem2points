@@ -36,7 +36,7 @@ struct PlyPoint{
 size_t psize = sizeof(float) * 6;
 
 float *rasterData;
-int arr_width, arr_height;
+size_t arr_width, arr_height;
 
 #define IS_BIG_ENDIAN (*(uint16_t *)"\0\xff" < 0x100)
 
@@ -89,7 +89,7 @@ BoundingBox getExtent(GDALDataset *dataset){
     return BoundingBox(geoLoc(0, dataset->GetRasterYSize(), affine), geoLoc(dataset->GetRasterXSize(), 0, affine));
 }
 
-int countSkirts(int nx, int ny){
+int countSkirts(size_t nx, size_t ny){
     float neighbor_z = rasterData[ny * arr_width + nx];
     float current_z = p.z;
     int result = 0;
@@ -105,7 +105,7 @@ int countSkirts(int nx, int ny){
     return result;
 }
 
-void writeSkirts(std::ofstream &f, int nx, int ny){
+void writeSkirts(std::ofstream &f, size_t nx, size_t ny){
     float neighbor_z = rasterData[ny * arr_width + nx];
     float z_val = p.z;
 
@@ -150,7 +150,7 @@ int main(int argc, char **argv) {
         float ext_width = extent.max.x - extent.min.x;
         float ext_height = extent.max.y - extent.min.y;
 
-        int vertex_count = (arr_height - 4) * (arr_width - 4);
+        size_t vertex_count = (arr_height - 4) * (arr_width - 4);
         int skirt_points = 0;
 
         GDALRasterBand *band = dataset->GetRasterBand(1);
@@ -175,8 +175,8 @@ int main(int argc, char **argv) {
 
         logWriter("Calculating skirts... ");
 
-        for (int y = 2; y < arr_height - 2; y++){
-            for (int x = 2; x < arr_width - 2; x++){
+        for (size_t y = 2; y < arr_height - 2; y++){
+            for (size_t x = 2; x < arr_width - 2; x++){
                 p.z = rasterData[y * arr_width + x];
 
                 if (!hasNoData || p.z != nodata){
@@ -216,8 +216,8 @@ int main(int argc, char **argv) {
         p.ny = 0;
         p.nz = 1;
 
-        for (int y = 2; y < arr_height - 2; y++){
-            for (int x = 2; x < arr_width - 2; x++){
+        for (size_t y = 2; y < arr_height - 2; y++){
+            for (size_t x = 2; x < arr_width - 2; x++){
                 p.z = rasterData[y * arr_width + x];
 
                 if (!hasNoData || p.z != nodata){
